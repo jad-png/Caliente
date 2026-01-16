@@ -11,4 +11,5 @@ export interface Track {
     file?: File | Blob; // The actual audio file (stored in IndexedDB)
     mimeType: string;
     size: number;
+    coverImage?: string; // Base64 string of the cover image
 }

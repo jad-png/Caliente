@@ -22,11 +22,3 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]:focus {
     outline: none;
 }
-
-.spotify-green {
-    color: #1DB954;
-}
-
-.bg-spotify-green {
-    background-color: #1DB954;
-}

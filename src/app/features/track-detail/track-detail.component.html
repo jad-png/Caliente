@@ -19,12 +19,16 @@
         <!-- Cover Art Placeholder -->
         <div
             class="aspect-square bg-gradient-to-br from-accent to-purple-600 rounded-3xl shadow-2xl flex items-center justify-center p-12 text-white relative overflow-hidden group">
+            @if (t.coverImage) {
+            <img [src]="t.coverImage" class="absolute inset-0 w-full h-full object-cover">
+            } @else {
             <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition"></div>
             <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full opacity-30" fill="currentColor"
                 viewBox="0 0 24 24">
                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
             </svg>
-            <div class="absolute bottom-6 left-6 right-6">
+            }
+            <div class="absolute bottom-6 left-6 right-6 z-10">
                 <h3 class="text-xl font-black truncate">{{ t.title }}</h3>
                 <p class="text-white/80 truncate text-sm font-medium">{{ t.artist }}</p>
             </div>

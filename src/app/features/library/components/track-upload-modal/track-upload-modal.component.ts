@@ -33,6 +33,7 @@ export class TrackUploadModalComponent {
   private fb = inject(FormBuilder);
 
   selectedFileName = signal<string | null>(null);
+  selectedCoverName = signal<string | null>(null);
   isSubmitting = signal(false);
   genres: MusicGenre[] = ['Pop', 'Rock', 'Rap', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 'Other'];
 
@@ -41,7 +42,8 @@ export class TrackUploadModalComponent {
     artist: ['', Validators.required],
     description: ['', Validators.maxLength(200)],
     genre: ['Pop', Validators.required],
-    file: [null as File | null, Validators.required]
+    file: [null as File | null, Validators.required],
+    coverImage: [null as string | null]
   });
 
   onClose() {
@@ -64,6 +66,23 @@ export class TrackUploadModalComponent {
     }
   }
 
+  onCoverSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        this.toastService.show('Please select a valid image file', 'error');
+        return;
+      }
+      this.selectedCoverName.set(file.name);
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.uploadForm.patchValue({ coverImage: e.target.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   async submitUpload() {
     if (this.uploadForm.invalid) return;
 
@@ -82,7 +101,8 @@ export class TrackUploadModalComponent {
         file: file,
         mimeType: file.type,
         size: file.size,
-        duration: duration
+        duration: duration,
+        coverImage: formValue.coverImage || undefined
       });
       this.toastService.show('Track added successfully!');
       this.success.emit();
