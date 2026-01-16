@@ -1,5 +1,5 @@
 import { Injectable, signal, Signal } from "@angular/core";
-import { BaseStorage, StorageService } from "./storage.service";
+import { StorageService } from "./storage.service";
 import { Playlist } from "../models/playlist.model";
 
 @Injectable({
@@ -19,6 +19,8 @@ export class PlaylistService {
         this.error.set(null);
         try {
             const playlists = await this.storage.playlists.getAllFromIndex('by-date');
+
+            playlists.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             this.playlists.set(playlists);
         } catch (err) {
             console.error(err);
@@ -28,18 +30,21 @@ export class PlaylistService {
         }
     }
 
-    async addPlaylist (playlistData: Omit<Playlist, 'id' | 'addedAt'>) {
+    async addPlaylist (data: {name : string, description?: string, coverImage?: string, artist: string}) {
         this.loading.set(true);
         this.error.set(null);
         try {
-            const playlist: Playlist = {
-                ...playlistData,
+            const newPlaylist: Playlist = {
                 id: crypto.randomUUID(),
+                name: data.name,
+                artist: data.artist,
+                trackIds: [],
+                coverImage: data.coverImage,
                 createdAt: new Date()
             }
 
-            await this.storage.playlists.add(playlist);
-            this.playlists.update((prev) => [...prev, playlist]);
+            await this.storage.playlists.add(newPlaylist);
+            this.playlists.update((prev) => [...prev, newPlaylist]);
         } catch (err) {
             console.error(err);
             this.error.set('Failed to add playlist');
@@ -66,5 +71,16 @@ export class PlaylistService {
             console.error(err);
             this.error.set('Failed to delete playlist');
         }
+    }
+
+    async addTrackToPlaylist(playlistId: string, trackId: string) {
+        const playlist = this.playlists().find(p => p.id === playlistId);
+        if (!playlist) {
+            this.error.set('Playlist not found');
+            return;
+        }
+
+        playlist.trackIds?.push(trackId);
+        this.updatePlaylist(playlist);
     }
 }
