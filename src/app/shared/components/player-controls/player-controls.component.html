@@ -1,47 +1,79 @@
 <div
-    class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-3 shadow-2xl z-50">
-    <div class="container mx-auto flex flex-col gap-2">
-
-        <!-- Progress Bar -->
-        <div class="w-full flex items-center gap-3 text-xs font-mono text-gray-500">
-            <span class="w-10 text-right">{{ player.currentTime() | duration }}</span>
-            <div class="relative flex-1 group py-2">
-                <input type="range" min="0" [max]="player.duration() || 100" [value]="player.currentTime()"
-                    (input)="seek($event)"
-                    class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-electric-violet">
+    class="fixed bottom-0 left-0 right-0 bg-surface/90 backdrop-blur-xl border-t border-white/5 h-24 px-4 flex flex-col z-[100]">
+    <!-- Seamless Progress Bar at the Top -->
+    <div class="absolute top-0 left-0 right-0 group cursor-pointer h-1">
+        <div class="bg-accent h-full relative transition-all duration-300"
+            [style.width.%]="(player.currentTime() / (player.duration() || 1)) * 100">
+            <div
+                class="absolute -right-1.5 -top-1 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
             </div>
-            <span class="w-10">{{ player.duration() | duration }}</span>
+        </div>
+        <input type="range" min="0" [max]="player.duration() || 1" [value]="player.currentTime()" (input)="seek($event)"
+            class="absolute inset-0 w-full h-1 opacity-0 cursor-pointer">
+    </div>
+
+    <div class="flex-1 container mx-auto flex items-center justify-between gap-6">
+
+        <!-- Left Section: Track Info -->
+        <div class="flex items-center gap-4 w-1/3 min-w-0">
+            @if (player.currentTrack(); as track) {
+            <div
+                class="w-14 h-14 bg-background-highlight rounded-lg shadow-2xl shrink-0 overflow-hidden relative group">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-3 text-accent/40" fill="currentColor"
+                    viewBox="0 0 24 24">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                </svg>
+            </div>
+            <div class="flex flex-col truncate">
+                <a [routerLink]="['/track', track.id]"
+                    class="text-sm font-bold text-white hover:text-accent transition truncate decoration-accent/30 decoration-2 hover:underline underline-offset-4">
+                    {{ track.title }}
+                </a>
+                <span class="text-xs text-gray-500 font-medium truncate">{{ track.artist }}</span>
+            </div>
+            <button class="p-2 text-gray-500 hover:text-accent transition active:scale-90">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </button>
+            } @else {
+            <div class="flex items-center gap-3 italic text-gray-600 text-sm">
+                <div
+                    class="w-14 h-14 bg-background-highlight rounded-lg border border-dashed border-white/5 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 opacity-20" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                </div>
+                <span>Add music to start playing</span>
+            </div>
+            }
         </div>
 
-        <div class="flex items-center justify-between gap-4">
+        <!-- Center Section: Playback Controls -->
+        <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="flex items-center gap-6">
+                <button class="text-gray-500 hover:text-accent transition hidden sm:block">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                </button>
 
-            <!-- Track Info -->
-            <div class="flex items-center w-1/4 min-w-[150px] overflow-hidden">
-                @if (player.currentTrack(); as track) {
-                <div class="flex flex-col truncate">
-                    <a [routerLink]="['/track', track.id]"
-                        class="font-bold text-gray-900 truncate hover:text-electric-violet transition cursor-pointer">
-                        {{ track.title }}
-                    </a>
-                    <span class="text-xs text-gray-400 truncate">{{ track.artist }}</span>
-                </div>
-                } @else {
-                <span class="text-sm text-gray-400 italic">No track playing</span>
-                }
-            </div>
-
-            <!-- Controls -->
-            <div class="flex items-center justify-center gap-4 flex-1">
-                <button class="p-2 text-gray-400 hover:text-gray-900 transition active:scale-95 disabled:opacity-30"
-                    (click)="onPrev()" [disabled]="!player.hasPrev()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+                <button (click)="onPrev()" [disabled]="!player.hasPrev()"
+                    class="text-gray-300 hover:text-white disabled:opacity-20 transition active:scale-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
                     </svg>
                 </button>
 
-                <button
-                    class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-900 text-white shadow-xl hover:scale-105 transition active:scale-95"
-                    (click)="player.togglePlayPause()" [disabled]="!player.currentTrack()">
+                <button (click)="player.togglePlayPause()" [disabled]="!player.currentTrack()"
+                    class="w-12 h-12 flex items-center justify-center rounded-full bg-white text-black shadow-xl hover:scale-105 transition active:scale-95 disabled:opacity-20">
                     @if (player.state() === 'playing') {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
@@ -54,17 +86,34 @@
                     }
                 </button>
 
-                <button class="p-2 text-gray-400 hover:text-gray-900 transition active:scale-95 disabled:opacity-30"
-                    (click)="onNext()" [disabled]="!player.hasNext()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+                <button (click)="onNext()" [disabled]="!player.hasNext()"
+                    class="text-gray-300 hover:text-white disabled:opacity-20 transition active:scale-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                    </svg>
+                </button>
+
+                <button class="text-gray-500 hover:text-accent transition hidden sm:block">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                 </button>
             </div>
 
-            <!-- Volume -->
-            <div class="flex items-center justify-end w-1/4 min-w-[150px] gap-2 group">
-                <button (click)="player.toggleMute()" class="text-gray-400 hover:text-gray-900">
+            <div class="flex items-center gap-2 text-[10px] font-bold text-gray-600 font-mono tracking-tighter">
+                <span>{{ player.currentTime() | duration }}</span>
+                <span>/</span>
+                <span>{{ player.duration() | duration }}</span>
+            </div>
+        </div>
+
+        <!-- Right Section: Volume & Utilities -->
+        <div class="flex items-center justify-end gap-4 w-1/3 min-w-0">
+            <div class="flex items-center gap-2 group w-32">
+                <button (click)="player.toggleMute()"
+                    class="text-gray-500 hover:text-white transition group-hover:text-accent">
                     @if (player.muted() || player.volume() === 0) {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -81,10 +130,21 @@
                     </svg>
                     }
                 </button>
-                <input type="range" min="0" max="1" step="0.01" [value]="player.volume()" (input)="updateVolume($event)"
-                    class="w-20 sm:w-24 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-400 group-hover:accent-electric-violet transition">
+                <div class="flex-1 h-1 bg-white/10 rounded-full relative overflow-hidden group/vol">
+                    <div class="absolute inset-y-0 left-0 bg-gray-400 group-hover:bg-accent transition-colors"
+                        [style.width.%]="player.volume() * 100"></div>
+                    <input type="range" min="0" max="1" step="0.01" [value]="player.volume()"
+                        (input)="updateVolume($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                </div>
             </div>
 
+            <button class="p-2 text-gray-500 hover:text-white transition lg:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
         </div>
+
     </div>
 </div>
