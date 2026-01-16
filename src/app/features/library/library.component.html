@@ -1,0 +1,103 @@
+<div class="container mx-auto px-4 py-8 pb-32">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Library</h1>
+            <p class="text-gray-500 mt-1">Manage and listen to your local collection</p>
+        </div>
+        <button (click)="openUploadModal()"
+            class="px-6 py-2.5 bg-gray-900 text-white font-medium rounded-full shadow-lg hover:bg-gray-800 transition transform active:scale-95 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Track
+        </button>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <div class="relative flex-1">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </span>
+            <input type="text" placeholder="Search by title or artist..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-electric-violet focus:border-transparent outline-none transition"
+                [(ngModel)]="searchQuery">
+        </div>
+        <select
+            class="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-electric-violet outline-none bg-white text-gray-700"
+            [(ngModel)]="selectedGenre">
+            <option value="All">All Genres</option>
+            @for (genre of genres; track genre) {
+            <option [value]="genre">{{ genre }}</option>
+            }
+        </select>
+    </div>
+
+    <!-- Track List -->
+    @if (trackService.loading()) {
+    <div class="flex justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+    </div>
+    } @else {
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        @if (filteredTracks().length === 0) {
+        <div class="p-12 text-center text-gray-500">
+            <p>No tracks found. Try adding some music!</p>
+        </div>
+        } @else {
+        <div
+            class="grid grid-cols-[auto_1fr_1fr_auto_auto] gap-4 px-6 py-3 border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div class="w-8">#</div>
+            <div>Title</div>
+            <div class="hidden sm:block">Artist</div>
+            <div class="hidden sm:block">Genre</div>
+            <div class="text-right">Duration</div>
+            <div class="w-10"></div>
+        </div>
+
+        @for (track of filteredTracks(); track track.id; let i = $index) {
+        <div class="group grid grid-cols-[auto_1fr_1fr_auto_auto] gap-4 px-6 py-4 items-center hover:bg-gray-50 transition cursor-pointer border-b border-gray-50 last:border-none"
+            (dblclick)="playTrack(track)">
+            <div class="w-8 text-gray-400 group-hover:text-gray-900">
+                @if (playerService.currentTrack()?.id === track.id && playerService.state() === 'playing') {
+                <span class="animate-pulse text-electric-violet">▶</span>
+                } @else {
+                {{ i + 1 }}
+                }
+            </div>
+            <div class="font-medium text-gray-900 truncate">
+                {{ track.title }}
+                <div class="sm:hidden text-xs text-gray-500 font-normal">{{ track.artist }}</div>
+            </div>
+            <div class="hidden sm:block text-gray-600 truncate">{{ track.artist }}</div>
+            <div class="hidden sm:block">
+                <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">{{ track.genre }}</span>
+            </div>
+            <div class="text-right text-gray-500 text-sm font-mono">{{ track.duration | duration }}</div>
+            <div class="flex justify-end opacity-0 group-hover:opacity-100 transition">
+                <button (click)="$event.stopPropagation(); deleteTrack(track.id)"
+                    class="p-1 text-gray-400 hover:text-red-500 transition" title="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        }
+        }
+    </div>
+    }
+
+    <!-- Upload Modal Overlay -->
+    @if (showUploadModal()) {
+    <app-track-upload-modal (close)="closeUploadModal()" (success)="closeUploadModal()"></app-track-upload-modal>
+    }
+</div>
