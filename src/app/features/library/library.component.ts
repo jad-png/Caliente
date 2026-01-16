@@ -1,16 +1,17 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { TrackService } from '../../core/services/track.service';
 import { AudioPlayerService } from '../../core/services/audio-player.service';
 import { Track, MusicGenre } from '../../core/models/track.model';
 import { DurationPipe } from '../../shared/pipes/duration.pipe';
 import { ToastService } from '../../core/services/toast.service';
+import { TrackUploadModalComponent } from './components/track-upload-modal/track-upload-modal.component';
 
 @Component({
   selector: 'app-library',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, DurationPipe],
+  imports: [CommonModule, FormsModule, DurationPipe, TrackUploadModalComponent],
   template: `
     <div class="container mx-auto px-4 py-8 pb-32">
       <!-- Header -->
@@ -111,99 +112,12 @@ import { ToastService } from '../../core/services/toast.service';
         </div>
       }
 
-      <!-- Upload Modal -->
+      <!-- Upload Modal Overlay -->
       @if (showUploadModal()) {
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-fade-in">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-              <h2 class="text-xl font-bold text-gray-900">Add New Track</h2>
-              <button (click)="closeUploadModal()" class="text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            
-            <form [formGroup]="uploadForm" (ngSubmit)="submitUpload()" class="p-6 space-y-4">
-              <!-- File Input -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Audio File</label>
-                <div 
-                  class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-electric-violet hover:bg-gray-50 transition cursor-pointer relative"
-                  (click)="fileInput.click()"
-                >
-                  <input 
-                    #fileInput 
-                    type="file" 
-                    class="hidden" 
-                    accept="audio/mpeg,audio/wav,audio/ogg" 
-                    (change)="onFileSelected($event)"
-                  >
-                  @if (selectedFileName()) {
-                    <p class="text-electric-violet font-medium break-all">{{ selectedFileName() }}</p>
-                    <p class="text-xs text-gray-500 mt-1">Click to change</p>
-                  } @else {
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                    <p class="text-sm text-gray-600">Click to upload MP3, WAV, or OGG</p>
-                    <p class="text-xs text-gray-400 mt-1">Max 10MB</p>
-                  }
-                </div>
-                 @if (uploadForm.get('file')?.touched && uploadForm.get('file')?.errors?.['required']) {
-                    <p class="text-red-500 text-xs mt-1">Audio file is required.</p>
-                  }
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <input type="text" formControlName="title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-electric-violet outline-none transition">
-                   @if (uploadForm.get('title')?.touched && uploadForm.get('title')?.errors?.['required']) {
-                    <p class="text-red-500 text-xs mt-1">Title is required.</p>
-                  }
-                   @if (uploadForm.get('title')?.errors?.['maxlength']) {
-                    <p class="text-red-500 text-xs mt-1">Max 50 characters.</p>
-                  }
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Artist</label>
-                  <input type="text" formControlName="artist" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-electric-violet outline-none transition">
-                  @if (uploadForm.get('artist')?.touched && uploadForm.get('artist')?.errors?.['required']) {
-                    <p class="text-red-500 text-xs mt-1">Artist is required.</p>
-                  }
-                </div>
-              </div>
-
-              <div>
-                 <label class="block text-sm font-medium text-gray-700 mb-1">Genre</label>
-                 <select formControlName="genre" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-electric-violet outline-none transition bg-white">
-                    @for (genre of genres; track genre) {
-                      <option [value]="genre">{{ genre }}</option>
-                    }
-                 </select>
-              </div>
-
-             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea formControlName="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-electric-violet outline-none transition resize-none"></textarea>
-                 @if (uploadForm.get('description')?.errors?.['maxlength']) {
-                    <p class="text-red-500 text-xs mt-1">Max 200 characters.</p>
-                  }
-             </div>
-
-             <div class="flex justify-end gap-3 pt-2">
-               <button type="button" (click)="closeUploadModal()" class="px-5 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition">Cancel</button>
-               <button 
-                type="submit" 
-                [disabled]="uploadForm.invalid || isSubmitting()"
-                class="px-6 py-2 bg-gray-900 text-white rounded-lg font-medium shadow-md hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-               >
-                 @if (isSubmitting()) {
-                   <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                 }
-                 Save Track
-               </button>
-             </div>
-            </form>
-          </div>
-        </div>
+        <app-track-upload-modal 
+          (close)="closeUploadModal()"
+          (success)="closeUploadModal()"
+        ></app-track-upload-modal>
       }
     </div>
   `,
@@ -217,24 +131,13 @@ export class LibraryComponent {
   trackService = inject(TrackService);
   playerService = inject(AudioPlayerService);
   toastService = inject(ToastService);
-  fb = inject(FormBuilder);
 
   tracks = this.trackService.tracks;
   searchQuery = signal('');
   selectedGenre = signal('All');
   showUploadModal = signal(false);
-  selectedFileName = signal<string | null>(null);
-  isSubmitting = signal(false);
 
   genres: MusicGenre[] = ['Pop', 'Rock', 'Rap', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 'Other'];
-
-  uploadForm = this.fb.group({
-    title: ['', [Validators.required, Validators.maxLength(50)]],
-    artist: ['', Validators.required],
-    description: ['', Validators.maxLength(200)],
-    genre: ['Pop', Validators.required],
-    file: [null as File | null, Validators.required]
-  });
 
   filteredTracks = computed(() => {
     const rawTracks = this.tracks();
@@ -272,68 +175,5 @@ export class LibraryComponent {
 
   closeUploadModal() {
     this.showUploadModal.set(false);
-    this.uploadForm.reset({ genre: 'Pop' });
-    this.selectedFileName.set(null);
-  }
-
-  onFileSelected(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) { // 10MB
-        this.toastService.show('file size must be less than 10MB', 'error');
-        return;
-      }
-      this.selectedFileName.set(file.name);
-      this.uploadForm.patchValue({ file });
-
-      if (!this.uploadForm.get('title')?.value) {
-        this.uploadForm.patchValue({ title: file.name.replace(/\.[^/.]+$/, "") });
-      }
-    }
-  }
-
-  async submitUpload() {
-    if (this.uploadForm.invalid) return;
-
-    this.isSubmitting.set(true);
-    const formValue = this.uploadForm.value;
-    const file = formValue.file as File;
-
-    const duration = await this.getAudioDuration(file);
-
-    try {
-      await this.trackService.addTrack({
-        title: formValue.title!,
-        artist: formValue.artist!,
-        description: formValue.description || '',
-        genre: formValue.genre as MusicGenre,
-        file: file,
-        mimeType: file.type,
-        size: file.size,
-        duration: duration
-      });
-      this.closeUploadModal();
-      this.toastService.show('Track added successfully!');
-    } catch (err) {
-      this.toastService.show('Failed to save track.', 'error');
-    } finally {
-      this.isSubmitting.set(false);
-    }
-  }
-
-  private getAudioDuration(file: File): Promise<number> {
-    return new Promise((resolve) => {
-      const audio = new Audio();
-      const objectUrl = URL.createObjectURL(file);
-      audio.src = objectUrl;
-      audio.onloadedmetadata = () => {
-        URL.revokeObjectURL(objectUrl);
-        resolve(audio.duration);
-      };
-      audio.onerror = () => {
-        URL.revokeObjectURL(objectUrl);
-        resolve(0);
-      };
-    });
   }
 }
