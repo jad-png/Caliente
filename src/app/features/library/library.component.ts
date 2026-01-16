@@ -24,6 +24,14 @@ export class LibraryComponent {
   searchQuery = signal('');
   selectedGenre = signal('All');
   showUploadModal = signal(false);
+  openMenuId = signal<string | null>(null);
+
+  toggleMenu(id: string, event: Event) {
+    event.stopPropagation();
+    this.openMenuId.update(v => v === id ? null : id);
+  }
+
+  // Close menu on click outside is already handled by standard event spread or simple toggle
 
   genres: MusicGenre[] = ['Pop', 'Rock', 'Rap', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 'Other'];
 

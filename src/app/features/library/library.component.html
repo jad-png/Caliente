@@ -1,100 +1,188 @@
-<div class="container mx-auto px-4 py-8 pb-32">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Library</h1>
-            <p class="text-gray-500 mt-1">Manage and listen to your local collection</p>
-        </div>
-        <button (click)="openUploadModal()"
-            class="px-6 py-2.5 bg-gray-900 text-white font-medium rounded-full shadow-lg hover:bg-gray-800 transition transform active:scale-95 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+<div class="h-full flex flex-col pt-8 px-8 gap-8">
+    <!-- Hero Section -->
+    <header class="flex flex-col md:flex-row items-end gap-6 animate-fade-in">
+        <div
+            class="w-48 h-48 bg-gradient-to-br from-accent to-purple-600 rounded-lg shadow-2xl flex items-center justify-center text-white shrink-0 group relative overflow-hidden">
+            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 opacity-30" fill="currentColor"
+                viewBox="0 0 24 24">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
             </svg>
-            Add Track
-        </button>
-    </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-black uppercase tracking-widest text-gray-400">Public Playlist</span>
+            <h1 class="text-7xl font-black text-white tracking-tighter">Your Library</h1>
+            <div class="flex items-center gap-2 mt-4">
+                <div
+                    class="w-6 h-6 rounded-full bg-accent flex items-center justify-center text-[10px] text-white font-bold">
+                    C</div>
+                <span class="text-sm font-bold text-white hover:underline cursor-pointer">Caliente User</span>
+                <span class="text-gray-500 text-sm">• {{ filteredTracks().length }} songs, about 3 hr 45 min</span>
+            </div>
+        </div>
+    </header>
 
-    <!-- Filters & Search -->
-    <div class="flex flex-col sm:flex-row gap-4 mb-6">
-        <div class="relative flex-1">
-            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+    <!-- Controls -->
+    <div
+        class="flex items-center justify-between sticky top-0 bg-background-base/60 backdrop-blur-lg py-4 z-10 border-b border-white/5">
+        <div class="flex items-center gap-6">
+            <button (click)="playTrack(filteredTracks()[0])" [disabled]="filteredTracks().length === 0"
+                class="w-14 h-14 bg-accent hover:bg-accent-hover rounded-full flex items-center justify-center text-black shadow-lg shadow-accent/20 transition-all hover:scale-110 active:scale-95 disabled:opacity-30 disabled:hover:scale-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+            </button>
+            <button (click)="openUploadModal()"
+                class="p-2 text-gray-400 hover:text-white transition group flex items-center gap-2 font-bold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-            </span>
-            <input type="text" placeholder="Search by title or artist..."
-                class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-electric-violet focus:border-transparent outline-none transition"
-                [(ngModel)]="searchQuery">
-        </div>
-        <select
-            class="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-electric-violet outline-none bg-white text-gray-700"
-            [(ngModel)]="selectedGenre">
-            <option value="All">All Genres</option>
-            @for (genre of genres; track genre) {
-            <option [value]="genre">{{ genre }}</option>
-            }
-        </select>
-    </div>
-
-    <!-- Track List -->
-    @if (trackService.loading()) {
-    <div class="flex justify-center py-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-    </div>
-    } @else {
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        @if (filteredTracks().length === 0) {
-        <div class="p-12 text-center text-gray-500">
-            <p>No tracks found. Try adding some music!</p>
-        </div>
-        } @else {
-        <div
-            class="grid grid-cols-[auto_1fr_1fr_auto_auto] gap-4 px-6 py-3 border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            <div class="w-8">#</div>
-            <div>Title</div>
-            <div class="hidden sm:block">Artist</div>
-            <div class="hidden sm:block">Genre</div>
-            <div class="text-right">Duration</div>
-            <div class="w-10"></div>
+                <span [class.hidden]="filteredTracks().length === 0">Add to Library</span>
+            </button>
         </div>
 
-        @for (track of filteredTracks(); track track.id; let i = $index) {
-        <div class="group grid grid-cols-[auto_1fr_1fr_auto_auto] gap-4 px-6 py-4 items-center hover:bg-gray-50 transition cursor-pointer border-b border-gray-50 last:border-none"
-            (dblclick)="playTrack(track)">
-            <div class="w-8 text-gray-400 group-hover:text-gray-900">
-                @if (playerService.currentTrack()?.id === track.id && playerService.state() === 'playing') {
-                <span class="animate-pulse text-electric-violet">▶</span>
-                } @else {
-                {{ i + 1 }}
+        <div class="flex items-center gap-4">
+            <select
+                class="bg-transparent border-none text-sm font-bold text-gray-400 hover:text-white transition cursor-pointer outline-none focus:ring-0"
+                [(ngModel)]="selectedGenre">
+                <option value="All">All Genres</option>
+                @for (genre of genres; track genre) {
+                <option [value]="genre">{{ genre }}</option>
                 }
-            </div>
-            <div class="font-medium text-gray-900 truncate">
-                {{ track.title }}
-                <div class="sm:hidden text-xs text-gray-500 font-normal">{{ track.artist }}</div>
-            </div>
-            <div class="hidden sm:block text-gray-600 truncate">{{ track.artist }}</div>
-            <div class="hidden sm:block">
-                <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">{{ track.genre }}</span>
-            </div>
-            <div class="text-right text-gray-500 text-sm font-mono">{{ track.duration | duration }}</div>
-            <div class="flex justify-end opacity-0 group-hover:opacity-100 transition">
-                <button (click)="$event.stopPropagation(); deleteTrack(track.id)"
-                    class="p-1 text-gray-400 hover:text-red-500 transition" title="Delete">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
-            </div>
+            </select>
         </div>
-        }
-        }
     </div>
-    }
+
+    <!-- Data Table -->
+    <div class="flex flex-col mb-12">
+        <!-- Table Header -->
+        <div
+            class="grid grid-cols-[16px_4fr_3fr_2fr_minmax(120px,1fr)_48px] gap-4 px-4 py-3 border-b border-white/5 text-xs font-black text-gray-500 uppercase tracking-widest sticky top-[92px] bg-background-base z-10">
+            <div class="flex justify-center">#</div>
+            <div>Title</div>
+            <div>Artist</div>
+            <div>Date Added</div>
+            <div class="flex justify-end pr-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div></div>
+        </div>
+
+        <!-- Table Rows -->
+        <div class="flex flex-col mt-2">
+            @if (trackService.loading()) {
+            <div class="flex justify-center py-24">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            </div>
+            } @else {
+            @for (track of filteredTracks(); track track.id; let i = $index) {
+            <div class="group grid grid-cols-[16px_4fr_3fr_2fr_minmax(120px,1fr)_48px] gap-4 px-4 py-2 items-center rounded-lg hover:bg-white/5 transition-all text-sm relative"
+                (dblclick)="playTrack(track)">
+                <!-- # -->
+                <div class="flex justify-center text-gray-500 font-mono">
+                    @if (playerService.currentTrack()?.id === track.id && playerService.state() === 'playing') {
+                    <div class="flex items-end gap-0.5 h-3 animate-pulse">
+                        <div class="w-1 h-3 bg-accent"></div>
+                        <div class="w-1 h-2 bg-accent"></div>
+                        <div class="w-1 h-3 bg-accent"></div>
+                    </div>
+                    } @else {
+                    <span class="group-hover:hidden">{{ i + 1 }}</span>
+                    <button (click)="playTrack(track)" class="hidden group-hover:block text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                    </button>
+                    }
+                </div>
+
+                <!-- Title + Cover -->
+                <div class="flex items-center gap-3 min-w-0">
+                    <div
+                        class="w-10 h-10 bg-background-highlight rounded shadow flex items-center justify-center shrink-0 overflow-hidden relative">
+                        <div class="absolute inset-0 bg-accent/10"></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-20" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                        </svg>
+                    </div>
+                    <div class="flex flex-col truncate">
+                        <span class="font-bold text-white truncate"
+                            [class.text-accent]="playerService.currentTrack()?.id === track.id">
+                            {{ track.title }}
+                        </span>
+                        <span class="text-xs text-gray-500 font-medium group-hover:text-gray-300 transition-colors">{{
+                            track.genre }}</span>
+                    </div>
+                </div>
+
+                <!-- Artist -->
+                <div class="text-gray-400 group-hover:text-white transition-colors truncate">
+                    {{ track.artist }}
+                </div>
+
+                <!-- Date Added -->
+                <div class="text-gray-500 truncate font-medium">
+                    {{ track.addedAt | date:'mediumDate' }}
+                </div>
+
+                <!-- Duration -->
+                <div class="flex justify-end pr-8 text-gray-500 font-mono text-xs">
+                    {{ track.duration | duration }}
+                </div>
+
+                <!-- Actions Dropdown -->
+                <div class="flex justify-center relative">
+                    <button (click)="toggleMenu(track.id, $event)"
+                        class="p-2 rounded-full hover:bg-white/10 text-gray-500 hover:text-white transition opacity-0 group-hover:opacity-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                                d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown UI (Dumb) -->
+                    @if (openMenuId() === track.id) {
+                    <div
+                        class="absolute right-0 top-full mt-2 w-48 bg-surface border border-white/10 rounded-lg shadow-2xl z-20 py-1 overflow-hidden animate-fade-in-scale">
+                        <button
+                            class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-colors">Add
+                            to Playlist</button>
+                        <button (click)="deleteTrack(track.id)"
+                            class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-300 hover:bg-red-500/20 hover:text-red-400 transition-colors">Delete
+                            Track</button>
+                        <button
+                            class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-colors border-t border-white/5">Edit
+                            Info</button>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+            }
+
+            @if (!trackService.loading() && filteredTracks().length === 0) {
+            <div class="flex flex-col items-center justify-center py-32 text-gray-500 gap-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 opacity-20" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                <p class="font-bold tracking-tight">No tracks found matching your criteria</p>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Space for player footer -->
+    <div class="h-32 shrink-0"></div>
 
     <!-- Upload Modal Overlay -->
     @if (showUploadModal()) {
