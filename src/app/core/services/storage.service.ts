@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { openDB, DBSchema, IDBPDatabase, StoreNames, StoreValue, IndexNames, StoreKey } from 'idb';
 import { Track } from '../models/track.model';
+import { Playlist } from '../models/playlist.model';
 
 interface MusicStreamDB extends DBSchema {
     tracks: {
@@ -10,43 +11,94 @@ interface MusicStreamDB extends DBSchema {
     };
 }
 
+interface PlaylistDB extends DBSchema {
+    playlists: {
+        key: string;
+        value: Playlist;
+        indexes: { 'by-date': Date };
+    }
+}
+
+export interface BaseStorage<T> {
+    add(item: T): Promise<string>;
+    getAll(): Promise<T[]>;
+    getAllFromIndex(indexName: string): Promise<T[]>;
+    get(id: string): Promise<T | undefined>;
+    update(item: T): Promise<string>;
+    delete(id: string): Promise<void>;
+}
+
+/**
+ * Concrete implementation of BaseStorage using IndexedDB.
+ */
+class IndexedDBProvider<TSchema extends DBSchema, TStoreName extends StoreNames<TSchema>>
+    implements BaseStorage<StoreValue<TSchema, TStoreName>> {
+
+    constructor(
+        private dbPromise: Promise<IDBPDatabase<TSchema>>,
+        private storeName: TStoreName
+    ) { }
+
+    async add(item: StoreValue<TSchema, TStoreName>): Promise<string> {
+        const db = await this.dbPromise;
+        return db.add(this.storeName, item) as unknown as Promise<string>;
+    }
+
+    async getAll(): Promise<StoreValue<TSchema, TStoreName>[]> {
+        const db = await this.dbPromise;
+        return db.getAll(this.storeName);
+    }
+
+    async getAllFromIndex(indexName: IndexNames<TSchema, TStoreName>): Promise<StoreValue<TSchema, TStoreName>[]> {
+        const db = await this.dbPromise;
+        return db.getAllFromIndex(this.storeName, indexName);
+    }
+
+    async get(id: string): Promise<StoreValue<TSchema, TStoreName> | undefined> {
+        const db = await this.dbPromise;
+        return db.get(this.storeName, id as any);
+    }
+
+    async update(item: StoreValue<TSchema, TStoreName>): Promise<string> {
+        const db = await this.dbPromise;
+        return db.put(this.storeName, item) as unknown as Promise<string>;
+    }
+
+    async delete(id: string): Promise<void> {
+        const db = await this.dbPromise;
+        return db.delete(this.storeName, id as any);
+    }
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class StorageService {
-    private dbPromise: Promise<IDBPDatabase<MusicStreamDB>>;
+    private musicDbPromise: Promise<IDBPDatabase<MusicStreamDB>>;
+    private playlistDbPromise: Promise<IDBPDatabase<PlaylistDB>>;
+
+    /**
+     * Public accessors for specialized storage.
+     */
+    public readonly tracks: BaseStorage<Track>;
+    public readonly playlists: BaseStorage<Playlist>;
 
     constructor() {
-        this.dbPromise = openDB<MusicStreamDB>('MusicStreamDB', 1, {
+        this.musicDbPromise = openDB<MusicStreamDB>('MusicStreamDB', 1, {
             upgrade(db) {
                 const store = db.createObjectStore('tracks', { keyPath: 'id' });
                 store.createIndex('by-date', 'addedAt');
             },
         });
-    }
 
-    async addTrack(track: Track): Promise<string> {
-        const db = await this.dbPromise;
-        return db.add('tracks', track);
-    }
+        this.playlistDbPromise = openDB<PlaylistDB>('PlaylistDB', 1, {
+            upgrade(db) {
+                const store = db.createObjectStore('playlists', { keyPath: 'id' });
+                store.createIndex('by-date', 'createdAt');
+            },
+        });
 
-    async getAllTracks(): Promise<Track[]> {
-        const db = await this.dbPromise;
-        return db.getAllFromIndex('tracks', 'by-date');
-    }
-
-    async getTrack(id: string): Promise<Track | undefined> {
-        const db = await this.dbPromise;
-        return db.get('tracks', id);
-    }
-
-    async updateTrack(track: Track): Promise<string> {
-        const db = await this.dbPromise;
-        return db.put('tracks', track);
-    }
-
-    async deleteTrack(id: string): Promise<void> {
-        const db = await this.dbPromise;
-        return db.delete('tracks', id);
+        this.tracks = new IndexedDBProvider(this.musicDbPromise, 'tracks');
+        this.playlists = new IndexedDBProvider(this.playlistDbPromise, 'playlists');
     }
 }
