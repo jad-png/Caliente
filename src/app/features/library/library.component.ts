@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { TrackService } from '../../core/services/track.service';
 import { AudioPlayerService } from '../../core/services/audio-player.service';
 import { Track, MusicGenre } from '../../core/models/track.model';
@@ -9,7 +9,7 @@ import { DurationPipe } from '../../shared/pipes/duration.pipe';
 @Component({
   selector: 'app-library',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DurationPipe],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DurationPipe],
   template: `
     <div class="container mx-auto px-4 py-8 pb-32">
       <!-- Header -->
@@ -39,14 +39,12 @@ import { DurationPipe } from '../../shared/pipes/duration.pipe';
             type="text" 
             placeholder="Search by title or artist..." 
             class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-electric-violet focus:border-transparent outline-none transition"
-            [value]="searchQuery()"
-            (input)="updateSearch($event)"
+            [(ngModel)]="searchQuery"
           >
         </div>
         <select 
           class="px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-electric-violet outline-none bg-white text-gray-700"
-          [value]="selectedGenre()"
-          (change)="updateGenre($event)"
+          [(ngModel)]="selectedGenre"
         >
           <option value="All">All Genres</option>
           @for (genre of genres; track genre) {
@@ -108,7 +106,6 @@ import { DurationPipe } from '../../shared/pipes/duration.pipe';
                  </div>
               </div>
             }
-            
           }
         </div>
       }
@@ -125,7 +122,6 @@ import { DurationPipe } from '../../shared/pipes/duration.pipe';
             </div>
             
             <form [formGroup]="uploadForm" (ngSubmit)="submitUpload()" class="p-6 space-y-4">
-              
               <!-- File Input -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Audio File</label>
@@ -204,7 +200,6 @@ import { DurationPipe } from '../../shared/pipes/duration.pipe';
                  Save Track
                </button>
              </div>
-
             </form>
           </div>
         </div>
@@ -240,12 +235,21 @@ export class LibraryComponent {
   });
 
   filteredTracks = computed(() => {
-    const query = this.searchQuery().toLowerCase();
+    const rawTracks = this.tracks();
+    const query = this.searchQuery().toLowerCase().trim();
     const genre = this.selectedGenre();
 
-    return this.tracks().filter(track => {
-      const matchesSearch = track.title.toLowerCase().includes(query) || track.artist.toLowerCase().includes(query);
+    if (!query && genre === 'All') {
+      return rawTracks;
+    }
+
+    return rawTracks.filter(track => {
+      const matchesSearch = !query ||
+        track.title.toLowerCase().includes(query) ||
+        track.artist.toLowerCase().includes(query);
+
       const matchesGenre = genre === 'All' || track.genre === genre;
+
       return matchesSearch && matchesGenre;
     });
   });
@@ -258,14 +262,6 @@ export class LibraryComponent {
     if (confirm('Are you sure you want to delete this track?')) {
       this.trackService.deleteTrack(id);
     }
-  }
-
-  updateSearch(event: Event) {
-    this.searchQuery.set((event.target as HTMLInputElement).value);
-  }
-
-  updateGenre(event: Event) {
-    this.selectedGenre.set((event.target as HTMLSelectElement).value);
   }
 
   openUploadModal() {
@@ -288,7 +284,6 @@ export class LibraryComponent {
       this.selectedFileName.set(file.name);
       this.uploadForm.patchValue({ file });
 
-      // Auto-fill title if empty
       if (!this.uploadForm.get('title')?.value) {
         this.uploadForm.patchValue({ title: file.name.replace(/\.[^/.]+$/, "") });
       }
@@ -300,9 +295,8 @@ export class LibraryComponent {
 
     this.isSubmitting.set(true);
     const formValue = this.uploadForm.value;
-    const file = formValue.file as File; // Cast is safe due to validation
+    const file = formValue.file as File;
 
-    // Get duration
     const duration = await this.getAudioDuration(file);
 
     try {
@@ -327,12 +321,16 @@ export class LibraryComponent {
   private getAudioDuration(file: File): Promise<number> {
     return new Promise((resolve) => {
       const audio = new Audio();
-      audio.src = URL.createObjectURL(file);
+      const objectUrl = URL.createObjectURL(file);
+      audio.src = objectUrl;
       audio.onloadedmetadata = () => {
-        URL.revokeObjectURL(audio.src);
+        URL.revokeObjectURL(objectUrl);
         resolve(audio.duration);
       };
-      audio.onerror = () => resolve(0); // Fallback
+      audio.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(0);
+      };
     });
   }
 }
