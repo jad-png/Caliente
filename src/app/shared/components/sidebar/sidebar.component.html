@@ -1,0 +1,66 @@
+<aside
+    class="h-[calc(100vh-4rem)] flex flex-col bg-background-base border-r border-white/5 transition-all duration-300 ease-in-out sticky top-16 overflow-y-auto"
+    [class.w-64]="!isCollapsed()" [class.w-20]="isCollapsed()">
+    <div class="p-4 flex flex-col gap-2">
+        <button (click)="toggleSidebar()"
+            class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-surface-hover text-gray-400 hover:text-white transition group">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span class="font-bold tracking-wide" [class.hidden]="isCollapsed()">Collapse</span>
+        </button>
+        <div class="h-px bg-white/5 my-2"></div>
+        <a routerLink="/" (click)="setActive('Library')"
+            class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all group"
+            [class.bg-accent-10]="activeMenu() === 'Library'" [class.text-accent]="activeMenu() === 'Library'"
+            [class.text-gray-400]="activeMenu() !== 'Library'"
+            [class.hover:bg-surface-hover]="activeMenu() !== 'Library'"
+            [class.hover:text-white]="activeMenu() !== 'Library'"><svg xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+            </svg><span class="font-bold" [class.hidden]="isCollapsed()">Library</span></a>
+    </div>
+    <div class="mt-8 flex-1 flex flex-col overflow-hidden">
+        <div class="px-8 mb-4 flex items-center justify-between" [class.hidden]="isCollapsed()">
+            <h3 class="text-xs font-black text-gray-500 uppercase tracking-widest">Your Playlists</h3>
+            <button (click)="onCreatePlaylistClick()"
+                class="text-gray-500 hover:text-accent font-bold text-xl transition active:scale-90"
+                title="Create Playlist"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg></button>
+        </div>
+        <div class="px-2 space-y-1 overflow-y-auto">
+            @for (pl of playlists(); track pl.id) {
+            <div
+                class="group relative px-4 py-2 rounded-lg hover:bg-surface-hover transition cursor-pointer flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-surface rounded shadow flex items-center justify-center text-gray-600 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-40" fill="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                    </svg></div>
+                <div class="flex-1 min-w-0" [class.hidden]="isCollapsed()">
+                    <p class="text-sm font-semibold text-gray-300 group-hover:text-white truncate transition-colors">{{
+                        pl.name }}</p>
+                    <p class="text-[10px] text-gray-500 font-medium">{{ pl.trackCount }} tracks</p>
+                </div>
+                <button class="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-white transition"
+                    [class.hidden]="isCollapsed()"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                        viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg></button>
+            </div>
+            }
+        </div>
+    </div>
+    <div class="p-6" [class.hidden]="isCollapsed()">
+        <button (click)="onCreatePlaylistClick()"
+            class="w-full bg-accent hover:bg-accent-hover text-white py-3 rounded-xl font-bold shadow-lg shadow-accent/20 transition active:scale-95 text-sm">New
+            Playlist</button>
+    </div>
+</aside>
