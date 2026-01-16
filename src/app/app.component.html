@@ -1,5 +1,25 @@
-<div class="min-h-screen bg-gray-50 text-gray-900 font-sans pb-24">
+<div class="flex flex-col h-screen bg-background-base overflow-hidden">
+  <!-- Top Navigation -->
+  <app-navbar></app-navbar>
+
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <app-sidebar (createPlaylist)="openPlaylistModal()"></app-sidebar>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto relative pb-24">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <!-- Modal Overlays -->
+  @if (showPlaylistModal()) {
+  <app-playlist-form-modal (close)="closePlaylistModal()" (submitForm)="closePlaylistModal()"></app-playlist-form-modal>
+  }
+
+  <!-- Global Toasts -->
   <app-toast-container></app-toast-container>
-  <router-outlet></router-outlet>
+
+  <!-- Fixed Bottom Player Footer -->
   <app-player-controls></app-player-controls>
 </div>
