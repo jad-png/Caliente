@@ -17,7 +17,7 @@ export class TrackService {
     async loadTracks() {
         this.loading.set(true);
         try {
-            const tracks = await this.storage.getAllTracks();
+            const tracks = await this.storage.tracks.getAllFromIndex('by-date');
             this.tracks.set(tracks);
         } catch (err) {
             console.error(err);
@@ -36,7 +36,7 @@ export class TrackService {
                 addedAt: new Date()
             };
 
-            await this.storage.addTrack(newTrack);
+            await this.storage.tracks.add(newTrack);
             // Refresh list or optimistic update
             this.tracks.update(list => [...list, newTrack]);
         } catch (err) {
@@ -50,7 +50,7 @@ export class TrackService {
 
     async deleteTrack(id: string) {
         try {
-            await this.storage.deleteTrack(id);
+            await this.storage.tracks.delete(id);
             this.tracks.update(list => list.filter(t => t.id !== id));
         } catch (err) {
             console.error(err);
@@ -60,7 +60,7 @@ export class TrackService {
 
     async updateTrack(updatedTrack: Track) {
         try {
-            await this.storage.updateTrack(updatedTrack);
+            await this.storage.tracks.update(updatedTrack);
             this.tracks.update(list => list.map(t => t.id === updatedTrack.id ? updatedTrack : t));
         } catch (err) {
             console.error(err);
