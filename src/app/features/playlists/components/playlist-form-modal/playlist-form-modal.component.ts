@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, HostListener, OnInit, Output, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -9,9 +9,10 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
     templateUrl: './playlist-form-modal.component.html',
     styleUrl: './playlist-form-modal.component.css'
 })
-export class PlaylistFormModalComponent {
+export class PlaylistFormModalComponent implements OnInit {
     @Output() close = new EventEmitter<void>();
     @Output() submitForm = new EventEmitter<any>();
+    playlistData = input<any>(null);
 
     @HostListener('document:keydown.escape')
     onEscape() {
@@ -33,6 +34,16 @@ export class PlaylistFormModalComponent {
     });
 
     selectedFileName = signal<string | null>(null);
+
+    ngOnInit() {
+        const data = this.playlistData();
+        if (data) {
+            this.playlistForm.patchValue({
+                name: data.name,
+                description: data.description || ''
+            });
+        }
+    }
 
     onClose() {
         this.close.emit();

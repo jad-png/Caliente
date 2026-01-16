@@ -4,7 +4,7 @@
 
   <div class="flex flex-1 overflow-hidden">
     <!-- Sidebar -->
-    <app-sidebar (createPlaylist)="openPlaylistModal()"></app-sidebar>
+    <app-sidebar (createPlaylist)="openPlaylistModal()" (editPlaylist)="handleEditPlaylist($event)"></app-sidebar>
 
     <!-- Main Content Area -->
     <main class="flex-1 overflow-y-auto relative pb-24">
@@ -14,7 +14,8 @@
 
   <!-- Modal Overlays -->
   @if (showPlaylistModal()) {
-  <app-playlist-form-modal (close)="closePlaylistModal()" (submitForm)="closePlaylistModal()"></app-playlist-form-modal>
+  <app-playlist-form-modal [playlistData]="editingPlaylist()" (close)="closePlaylistModal()"
+    (submitForm)="closePlaylistModal()"></app-playlist-form-modal>
   }
 
   <!-- Global Toasts -->

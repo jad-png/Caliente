@@ -23,6 +23,7 @@ import { PlaylistFormModalComponent } from './features/playlists/components/play
 export class AppComponent {
   title = 'MusicStream';
   showPlaylistModal = signal(false);
+  editingPlaylist = signal<any>(null);
 
   openPlaylistModal() {
     this.showPlaylistModal.set(true);
@@ -30,5 +31,11 @@ export class AppComponent {
 
   closePlaylistModal() {
     this.showPlaylistModal.set(false);
+    this.editingPlaylist.set(null);
+  }
+
+  handleEditPlaylist(playlist: any) {
+    this.editingPlaylist.set(playlist);
+    this.showPlaylistModal.set(true);
   }
 }
