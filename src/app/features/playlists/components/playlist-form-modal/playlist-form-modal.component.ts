@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, HostListener, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -12,6 +12,17 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 export class PlaylistFormModalComponent {
     @Output() close = new EventEmitter<void>();
     @Output() submitForm = new EventEmitter<any>();
+
+    @HostListener('document:keydown.escape')
+    onEscape() {
+        this.onClose();
+    }
+
+    onContainerClick(event: MouseEvent) {
+        if ((event.target as HTMLElement).classList.contains('fixed')) {
+            this.onClose();
+        }
+    }
 
     private fb = inject(FormBuilder);
 

@@ -1,147 +1,171 @@
-<div
-    class="fixed bottom-0 left-0 right-0 bg-surface/90 backdrop-blur-xl border-t border-white/5 h-24 px-4 flex flex-col z-[100]">
-    <!-- Seamless Progress Bar at the Top -->
-    <div class="absolute top-0 left-0 right-0 group cursor-pointer h-1">
-        <div class="bg-accent h-full relative transition-all duration-300"
-            [style.width.%]="(player.currentTime() / (player.duration() || 1)) * 100">
-            <div
-                class="absolute -right-1.5 -top-1 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-            </div>
-        </div>
-        <input type="range" min="0" [max]="player.duration() || 1" [value]="player.currentTime()" (input)="seek($event)"
-            class="absolute inset-0 w-full h-1 opacity-0 cursor-pointer">
-    </div>
-
-    <div class="flex-1 container mx-auto flex items-center justify-between gap-6">
+<div class="fixed bottom-0 left-0 right-0 bg-black border-t border-white/5 h-[92px] px-4 flex items-center z-[100]">
+    <div class="flex items-center justify-between w-full gap-4 max-w-[100vw]">
 
         <!-- Left Section: Track Info -->
-        <div class="flex items-center gap-4 w-1/3 min-w-0">
+        <div class="flex items-center gap-4 w-[30%] min-w-0">
             @if (player.currentTrack(); as track) {
-            <div
-                class="w-14 h-14 bg-background-highlight rounded-lg shadow-2xl shrink-0 overflow-hidden relative group">
-                <div class="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent"></div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-3 text-accent/40" fill="currentColor"
+            <div class="w-14 h-14 bg-background-highlight rounded shadow-lg shrink-0 overflow-hidden relative group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full p-3 text-white/20" fill="currentColor"
                     viewBox="0 0 24 24">
                     <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                 </svg>
             </div>
             <div class="flex flex-col truncate">
-                <a [routerLink]="['/track', track.id]"
-                    class="text-sm font-bold text-white hover:text-accent transition truncate decoration-accent/30 decoration-2 hover:underline underline-offset-4">
+                <a [routerLink]="['/track', track.id]" class="text-sm font-bold text-white hover:underline truncate">
                     {{ track.title }}
                 </a>
-                <span class="text-xs text-gray-500 font-medium truncate">{{ track.artist }}</span>
+                <span class="text-[11px] text-gray-400 hover:text-white hover:underline cursor-pointer truncate">{{
+                    track.artist }}</span>
             </div>
-            <button class="p-2 text-gray-500 hover:text-accent transition active:scale-90">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            <!-- Spotify Verified Check -->
+            <button class="shrink-0 text-[#1DB954] hover:scale-105 transition active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
             </button>
             } @else {
-            <div class="flex items-center gap-3 italic text-gray-600 text-sm">
+            <div class="flex items-center gap-3 italic text-gray-600 text-[11px] font-bold uppercase tracking-widest">
                 <div
-                    class="w-14 h-14 bg-background-highlight rounded-lg border border-dashed border-white/5 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 opacity-20" fill="none" viewBox="0 0 24 24"
+                    class="w-14 h-14 bg-white/5 rounded border border-dashed border-white/10 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-20" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        <path
                             d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                     </svg>
                 </div>
-                <span>Add music to start playing</span>
+                <span>Not Playing</span>
             </div>
             }
         </div>
 
-        <!-- Center Section: Playback Controls -->
-        <div class="flex flex-col items-center gap-1 flex-1">
-            <div class="flex items-center gap-6">
-                <button class="text-gray-500 hover:text-accent transition hidden sm:block">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+        <!-- Center Section: Playback Controls & Progress -->
+        <div class="flex flex-col items-center flex-1 max-w-[40%] gap-2">
+            <!-- Controls -->
+            <div class="flex items-center gap-5">
+                <!-- Shuffle -->
+                <button class="text-gray-400 hover:text-white transition group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.45 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
                     </svg>
                 </button>
 
+                <!-- Prev -->
                 <button (click)="onPrev()" [disabled]="!player.hasPrev()"
-                    class="text-gray-300 hover:text-white disabled:opacity-20 transition active:scale-90">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                    class="text-gray-400 hover:text-white disabled:opacity-30 transition active:scale-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
                     </svg>
                 </button>
 
+                <!-- Play/Pause -->
                 <button (click)="player.togglePlayPause()" [disabled]="!player.currentTrack()"
-                    class="w-12 h-12 flex items-center justify-center rounded-full bg-white text-black shadow-xl hover:scale-105 transition active:scale-95 disabled:opacity-20">
+                    class="w-8 h-8 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition active:scale-95 disabled:opacity-30">
                     @if (player.state() === 'playing') {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                     </svg>
                     } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-1" fill="currentColor"
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="currentColor"
                         viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                     </svg>
                     }
                 </button>
 
+                <!-- Next -->
                 <button (click)="onNext()" [disabled]="!player.hasNext()"
-                    class="text-gray-300 hover:text-white disabled:opacity-20 transition active:scale-90">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                    class="text-gray-400 hover:text-white disabled:opacity-30 transition active:scale-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
                     </svg>
                 </button>
 
-                <button class="text-gray-500 hover:text-accent transition hidden sm:block">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <!-- Repeat -->
+                <button class="text-gray-400 hover:text-white transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
                     </svg>
                 </button>
             </div>
 
-            <div class="flex items-center gap-2 text-[10px] font-bold text-gray-600 font-mono tracking-tighter">
-                <span>{{ player.currentTime() | duration }}</span>
-                <span>/</span>
-                <span>{{ player.duration() | duration }}</span>
+            <!-- Progress Bar -->
+            <div class="flex items-center gap-2 w-full text-[11px] text-gray-400 font-medium font-sans">
+                <span class="w-10 text-right">{{ (player.currentTime() | duration) || '0:00' }}</span>
+                <div class="flex-1 h-1 bg-white/20 rounded-full group relative cursor-pointer">
+                    <!-- Progress Fill -->
+                    <div class="h-full bg-white group-hover:bg-[#1DB954] rounded-full relative transition-colors"
+                        [style.width.%]="(player.currentTime() / (player.duration() || 1)) * 100">
+                        <!-- Handle -->
+                        <div
+                            class="absolute -right-1.5 -top-1 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                    </div>
+                    <input type="range" min="0" [max]="player.duration() || 1" [value]="player.currentTime()"
+                        (input)="seek($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                </div>
+                <span class="w-10">{{ (player.duration() | duration) || '0:00' }}</span>
             </div>
         </div>
 
-        <!-- Right Section: Volume & Utilities -->
-        <div class="flex items-center justify-end gap-4 w-1/3 min-w-0">
-            <div class="flex items-center gap-2 group w-32">
-                <button (click)="player.toggleMute()"
-                    class="text-gray-500 hover:text-white transition group-hover:text-accent">
+        <!-- Right Section: Volume & Specific Utilities -->
+        <div class="flex items-center justify-end gap-3 w-[30%] min-w-0">
+            <!-- Lyrics (Mic) -->
+            <button class="text-gray-400 hover:text-white transition p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </button>
+            <!-- Queue -->
+            <button class="text-gray-400 hover:text-white transition p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z" />
+                </svg>
+            </button>
+            <!-- Connect to a device -->
+            <button class="text-gray-400 hover:text-white transition p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+            </button>
+            <!-- Volume Slider -->
+            <div class="flex items-center gap-2 group w-32 ml-1">
+                <button (click)="player.toggleMute()" class="text-gray-400 hover:text-white transition">
                     @if (player.muted() || player.volume() === 0) {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path
                             d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                        <path d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
                     </svg>
                     } @else {
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path
                             d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                     </svg>
                     }
                 </button>
-                <div class="flex-1 h-1 bg-white/10 rounded-full relative overflow-hidden group/vol">
-                    <div class="absolute inset-y-0 left-0 bg-gray-400 group-hover:bg-accent transition-colors"
+                <div class="flex-1 h-1 bg-white/20 rounded-full group/vol relative cursor-pointer">
+                    <div class="h-full bg-white group-hover:bg-[#1DB954] rounded-full transition-colors"
                         [style.width.%]="player.volume() * 100"></div>
                     <input type="range" min="0" max="1" step="0.01" [value]="player.volume()"
-                        (input)="updateVolume($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        (input)="updateVolume($event)"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                 </div>
             </div>
-
-            <button class="p-2 text-gray-500 hover:text-white transition lg:hidden">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            <!-- Fullscreen / Expand -->
+            <button class="text-gray-400 hover:text-white transition p-1 ml-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" />
                 </svg>
             </button>
         </div>

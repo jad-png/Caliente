@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, HostListener, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TrackService } from '../../../../core/services/track.service';
@@ -15,6 +15,18 @@ import { MusicGenre } from '../../../../core/models/track.model';
 export class TrackUploadModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
+
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.onClose();
+  }
+
+  onContainerClick(event: MouseEvent) {
+    // If we click exactly the backdrop (the outer div)
+    if ((event.target as HTMLElement).classList.contains('fixed')) {
+      this.onClose();
+    }
+  }
 
   private trackService = inject(TrackService);
   private toastService = inject(ToastService);

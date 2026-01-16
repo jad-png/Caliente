@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, HostListener, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TrackService } from '../../core/services/track.service';
@@ -26,12 +26,19 @@ export class LibraryComponent {
   showUploadModal = signal(false);
   openMenuId = signal<string | null>(null);
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    // If we have an open menu and the click is NOT on a menu button or the menu itself
+    if (this.openMenuId() && !target.closest('.menu-trigger') && !target.closest('.menu-content')) {
+      this.openMenuId.set(null);
+    }
+  }
+
   toggleMenu(id: string, event: Event) {
     event.stopPropagation();
     this.openMenuId.update(v => v === id ? null : id);
   }
-
-  // Close menu on click outside is already handled by standard event spread or simple toggle
 
   genres: MusicGenre[] = ['Pop', 'Rock', 'Rap', 'Hip-Hop', 'Jazz', 'Classical', 'Electronic', 'R&B', 'Country', 'Other'];
 

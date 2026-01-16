@@ -45,11 +45,11 @@
 
         <div class="flex items-center gap-4">
             <select
-                class="bg-transparent border-none text-sm font-bold text-gray-400 hover:text-white transition cursor-pointer outline-none focus:ring-0"
+                class="bg-surface-hover/50 border border-white/5 rounded-full text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-white px-4 py-2 transition cursor-pointer outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent/30"
                 [(ngModel)]="selectedGenre">
-                <option value="All">All Genres</option>
+                <option value="All" class="bg-surface text-white">All Genres</option>
                 @for (genre of genres; track genre) {
-                <option [value]="genre">{{ genre }}</option>
+                <option [value]="genre" class="bg-surface text-white">{{ genre }}</option>
                 }
             </select>
         </div>
@@ -141,17 +141,17 @@
                 <!-- Actions Dropdown -->
                 <div class="flex justify-center relative">
                     <button (click)="toggleMenu(track.id, $event)"
-                        class="p-2 rounded-full hover:bg-white/10 text-gray-500 hover:text-white transition opacity-0 group-hover:opacity-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        class="menu-trigger p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                             <path
-                                d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
                         </svg>
                     </button>
 
-                    <!-- Dropdown UI (Dumb) -->
+                    <!-- Dropdown Menu -->
                     @if (openMenuId() === track.id) {
                     <div
-                        class="absolute right-0 top-full mt-2 w-48 bg-surface border border-white/10 rounded-lg shadow-2xl z-20 py-1 overflow-hidden animate-fade-in-scale">
+                        class="menu-content absolute right-0 mt-2 w-48 bg-background-highlight border border-white/5 rounded-lg shadow-2xl z-[100] py-1 animate-fade-in origin-top-right">
                         <button
                             class="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-colors">Add
                             to Playlist</button>
