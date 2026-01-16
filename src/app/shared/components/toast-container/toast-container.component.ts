@@ -1,0 +1,50 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ToastService } from '../../../core/services/toast.service';
+
+@Component({
+    selector: 'app-toast-container',
+    standalone: true,
+    imports: [CommonModule],
+    template: `
+    <div class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none">
+      @for (toast of toastService.toasts(); track toast.id) {
+        <div 
+          class="pointer-events-auto px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-slide-in"
+          [ngClass]="{
+            'bg-gray-900 text-white': toast.type === 'success',
+            'bg-red-600 text-white': toast.type === 'error'
+          }"
+        >
+          @if (toast.type === 'success') {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          }
+          <p class="font-medium">{{ toast.message }}</p>
+          <button (click)="toastService.remove(toast.id)" class="ml-4 opacity-50 hover:opacity-100 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      }
+    </div>
+  `,
+    styles: [`
+    .animate-slide-in {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  `]
+})
+export class ToastContainerComponent {
+    toastService = inject(ToastService);
+}

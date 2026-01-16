@@ -6,6 +6,7 @@ import { TrackService } from '../../core/services/track.service';
 import { AudioPlayerService } from '../../core/services/audio-player.service';
 import { Track, MusicGenre } from '../../core/models/track.model';
 import { DurationPipe } from '../../shared/pipes/duration.pipe';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-track-detail',
@@ -147,6 +148,7 @@ export class TrackDetailComponent implements OnInit {
   private router = inject(Router);
   private trackService = inject(TrackService);
   private fb = inject(FormBuilder);
+  private toastService = inject(ToastService);
   playerService = inject(AudioPlayerService);
 
   track = signal<Track | null>(null);
@@ -223,9 +225,9 @@ export class TrackDetailComponent implements OnInit {
     try {
       await this.trackService.updateTrack(updated);
       this.track.set(updated);
-      alert('Changes saved successfully!');
+      this.toastService.show('Changes saved successfully!');
     } catch (err) {
-      alert('Failed to save changes.');
+      this.toastService.show('Failed to save changes.', 'error');
     } finally {
       this.isSaving.set(false);
     }

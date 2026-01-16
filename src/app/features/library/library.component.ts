@@ -5,6 +5,7 @@ import { TrackService } from '../../core/services/track.service';
 import { AudioPlayerService } from '../../core/services/audio-player.service';
 import { Track, MusicGenre } from '../../core/models/track.model';
 import { DurationPipe } from '../../shared/pipes/duration.pipe';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-library',
@@ -215,6 +216,7 @@ import { DurationPipe } from '../../shared/pipes/duration.pipe';
 export class LibraryComponent {
   trackService = inject(TrackService);
   playerService = inject(AudioPlayerService);
+  toastService = inject(ToastService);
   fb = inject(FormBuilder);
 
   tracks = this.trackService.tracks;
@@ -278,7 +280,7 @@ export class LibraryComponent {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) { // 10MB
-        alert('File size must be less than 10MB');
+        this.toastService.show('file size must be less than 10MB', 'error');
         return;
       }
       this.selectedFileName.set(file.name);
@@ -311,8 +313,9 @@ export class LibraryComponent {
         duration: duration
       });
       this.closeUploadModal();
+      this.toastService.show('Track added successfully!');
     } catch (err) {
-      alert('Failed to save track.');
+      this.toastService.show('Failed to save track.', 'error');
     } finally {
       this.isSubmitting.set(false);
     }
