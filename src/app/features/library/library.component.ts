@@ -255,7 +255,7 @@ export class LibraryComponent {
   });
 
   playTrack(track: Track) {
-    this.playerService.playTrack(track);
+    this.playerService.playTrack(track, this.filteredTracks());
   }
 
   deleteTrack(id: string) {

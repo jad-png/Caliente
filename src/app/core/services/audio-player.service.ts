@@ -16,6 +16,24 @@ export class AudioPlayerService {
     readonly duration = signal<number>(0);
     readonly volume = signal<number>(1);
     readonly muted = signal<boolean>(false);
+    readonly queue = signal<Track[]>([]);
+
+    // Computed signals for navigation status
+    readonly currentIndex = computed(() => {
+        const track = this.currentTrack();
+        if (!track) return -1;
+        return this.queue().findIndex(t => t.id === track.id);
+    });
+
+    readonly hasNext = computed(() => {
+        const index = this.currentIndex();
+        return index !== -1 && index < this.queue().length - 1;
+    });
+
+    readonly hasPrev = computed(() => {
+        const index = this.currentIndex();
+        return index > 0;
+    });
 
     constructor() {
         this.initAudioEvents();
@@ -27,8 +45,12 @@ export class AudioPlayerService {
         this.audio.addEventListener('waiting', () => this.state.set('buffering'));
         this.audio.addEventListener('playing', () => this.state.set('playing'));
         this.audio.addEventListener('ended', () => {
-            this.state.set('stopped');
-            this.currentTime.set(0);
+            if (this.hasNext()) {
+                this.next();
+            } else {
+                this.state.set('stopped');
+                this.currentTime.set(0);
+            }
         });
         this.audio.addEventListener('timeupdate', () => {
             this.currentTime.set(this.audio.currentTime);
@@ -42,23 +64,43 @@ export class AudioPlayerService {
         });
     }
 
-    playTrack(track: Track) {
+    playTrack(track: Track, context?: Track[]) {
         if (!track.file) {
             console.error('No file associated with track');
             return;
         }
 
-        // Clean up previous URL if needed (though browser manages this somewhat, explicit revocation is good practice)
+        if (context) {
+            this.queue.set(context);
+        } else if (this.queue().length === 0 || !this.queue().some(t => t.id === track.id)) {
+            this.queue.set([track]);
+        }
+
+        // Clean up previous URL if needed
         if (this.audio.src) {
             URL.revokeObjectURL(this.audio.src);
         }
 
         const objectUrl = URL.createObjectURL(track.file);
         this.audio.src = objectUrl;
-        this.audio.load(); // specific for some browsers
+        this.audio.load();
 
         this.currentTrack.set(track);
         this.audio.play().catch(error => console.error('Play error:', error));
+    }
+
+    next() {
+        const index = this.currentIndex();
+        if (this.hasNext()) {
+            this.playTrack(this.queue()[index + 1]);
+        }
+    }
+
+    previous() {
+        const index = this.currentIndex();
+        if (this.hasPrev()) {
+            this.playTrack(this.queue()[index - 1]);
+        }
     }
 
     togglePlayPause() {

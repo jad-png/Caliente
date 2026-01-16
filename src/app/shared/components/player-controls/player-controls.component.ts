@@ -51,7 +51,7 @@ import { DurationPipe } from '../../pipes/duration.pipe';
             <button 
               class="p-2 text-gray-400 hover:text-gray-900 transition active:scale-95 disabled:opacity-30" 
               (click)="onPrev()" 
-              [disabled]="!hasPrev()"
+              [disabled]="!player.hasPrev()"
             >
                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
             </button>
@@ -71,7 +71,7 @@ import { DurationPipe } from '../../pipes/duration.pipe';
             <button 
               class="p-2 text-gray-400 hover:text-gray-900 transition active:scale-95 disabled:opacity-30" 
               (click)="onNext()" 
-              [disabled]="!hasNext()"
+              [disabled]="!player.hasNext()"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
             </button>
@@ -109,21 +109,6 @@ import { DurationPipe } from '../../pipes/duration.pipe';
 })
 export class PlayerControlsComponent {
   player = inject(AudioPlayerService);
-  private trackService = inject(TrackService);
-
-  currentIndex = computed(() => {
-    const current = this.player.currentTrack();
-    if (!current) return -1;
-    return this.trackService.tracks().findIndex(t => t.id === current.id);
-  });
-
-  hasNext = computed(() => {
-    return this.currentIndex() < this.trackService.tracks().length - 1;
-  });
-
-  hasPrev = computed(() => {
-    return this.currentIndex() > 0;
-  });
 
   seek(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -136,20 +121,11 @@ export class PlayerControlsComponent {
   }
 
   onPrev() {
-    const index = this.currentIndex();
-    if (index > 0) {
-      const prevTrack = this.trackService.tracks()[index - 1];
-      this.player.playTrack(prevTrack);
-    }
+    this.player.previous();
   }
 
   onNext() {
-    const index = this.currentIndex();
-    const tracks = this.trackService.tracks();
-    if (index < tracks.length - 1) {
-      const nextTrack = tracks[index + 1];
-      this.player.playTrack(nextTrack);
-    }
+    this.player.next();
   }
 }
 
