@@ -12,7 +12,7 @@ export class PlaylistService {
     readonly error = signal<String | null>(null);
 
     private toastService = inject(ToastService);
-    
+
 
     constructor(private storage: StorageService) {
         this.loadPlaylists();
@@ -34,7 +34,7 @@ export class PlaylistService {
         }
     }
 
-    async addPlaylist (data: {name : string, description?: string, coverImage?: string, artist: string}) {
+    async addPlaylist(data: { name: string, description?: string, coverImage?: string, artist: string }) {
         this.loading.set(true);
         this.error.set(null);
         try {
@@ -42,6 +42,7 @@ export class PlaylistService {
                 id: crypto.randomUUID(),
                 name: data.name,
                 artist: data.artist,
+                description: data.description,
                 trackIds: [],
                 coverImage: data.coverImage,
                 createdAt: new Date()
@@ -57,7 +58,7 @@ export class PlaylistService {
         }
     }
 
-    async updatePlaylist (updatedPlaylist: Playlist) {
+    async updatePlaylist(updatedPlaylist: Playlist) {
         try {
             await this.storage.playlists.update(updatedPlaylist);
             this.playlists.update((prev) => prev.map(p => p.id === updatedPlaylist.id ? updatedPlaylist : p));
@@ -67,7 +68,7 @@ export class PlaylistService {
         }
     }
 
-    async deletePlaylist (id: string) {
+    async deletePlaylist(id: string) {
         try {
             await this.storage.playlists.delete(id);
             this.playlists.update((prev) => prev.filter(p => p.id !== id));

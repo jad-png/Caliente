@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, inject, Injectable, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, HostListener, inject, Injectable, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PlaylistService } from '../../../core/services/playlist.service';
@@ -16,8 +16,12 @@ export class SidebarComponent {
     isCollapsed = signal(false);
     activeMenu = signal('Library');
     openPlaylistMenuId = signal<string | null>(null);
-
     private playlistService = inject(PlaylistService);
+
+    readonly playlistWithCount = computed(() => this.playlists().map(p => ({
+        ...p,
+        trackCount: p.trackIds?.length || 0
+    })))
 
     playlists = this.playlistService.playlists;
 
@@ -55,5 +59,12 @@ export class SidebarComponent {
     onEditPlaylist(playlist: any) {
         this.editPlaylist.emit(playlist);
         this.openPlaylistMenuId.set(null);
+    }
+
+    async onDeletePlaylist(id: string) {
+        if (confirm('Are you sure you want to delete this playlist?')) {
+            await this.playlistService.deletePlaylist(id);
+            this.openPlaylistMenuId.set(null);
+        }
     }
 }

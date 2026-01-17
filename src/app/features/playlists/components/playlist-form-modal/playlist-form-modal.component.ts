@@ -1,6 +1,7 @@
 import { Component, EventEmitter, HostListener, OnInit, Output, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PlaylistService } from '../../../../core/services/playlist.service';
 
 @Component({
     selector: 'app-playlist-form-modal',
@@ -26,6 +27,7 @@ export class PlaylistFormModalComponent implements OnInit {
     }
 
     private fb = inject(FormBuilder);
+    private playlistService = inject(PlaylistService);
 
     playlistForm = this.fb.group({
         name: ['', [Validators.required, Validators.maxLength(50)]],
@@ -34,6 +36,7 @@ export class PlaylistFormModalComponent implements OnInit {
     });
 
     selectedFileName = signal<string | null>(null);
+    isLoading = signal<boolean>(false);
 
     ngOnInit() {
         const data = this.playlistData();
@@ -57,10 +60,52 @@ export class PlaylistFormModalComponent implements OnInit {
         }
     }
 
-    onSubmit() {
+    private async fileToBase64(file: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    async onSubmit() {
         if (this.playlistForm.valid) {
-            this.submitForm.emit(this.playlistForm.value);
-            this.onClose();
+            this.isLoading.set(true);
+            try {
+                const formValue = this.playlistForm.value;
+                let coverImageBase64: string | undefined = undefined;
+
+                if (formValue.cover instanceof File) {
+                    coverImageBase64 = await this.fileToBase64(formValue.cover);
+                }
+
+                const existingData = this.playlistData();
+                if (existingData) {
+                    // Update
+                    await this.playlistService.updatePlaylist({
+                        ...existingData,
+                        name: formValue.name!,
+                        description: formValue.description || '',
+                        coverImage: coverImageBase64 || existingData.coverImage
+                    });
+                } else {
+                    // Create
+                    await this.playlistService.addPlaylist({
+                        name: formValue.name!,
+                        description: formValue.description || '',
+                        coverImage: coverImageBase64,
+                        artist: 'Local User' // Defaulting to Local User
+                    });
+                }
+
+                this.submitForm.emit();
+                this.onClose();
+            } catch (error) {
+                console.error('Error saving playlist:', error);
+            } finally {
+                this.isLoading.set(false);
+            }
         }
     }
 }

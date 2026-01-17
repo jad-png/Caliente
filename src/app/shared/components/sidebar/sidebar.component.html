@@ -32,10 +32,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg></button>
         </div>
-        <div class="px-2 space-y-1 overflow-y-auto">
-            @for (pl of playlists(); track pl.id) {
-            <div
-                class="group relative px-4 py-2 rounded-lg hover:bg-surface-hover transition cursor-pointer flex items-center gap-3">
+        <div class="px-2 space-y-1">
+            @for (pl of playlistWithCount(); track pl.id) {
+            <div class="group relative px-4 py-2 rounded-lg hover:bg-surface-hover transition cursor-pointer flex items-center gap-3"
+                [class.z-[60]]="openPlaylistMenuId() === pl.id">
                 <div
                     class="w-10 h-10 bg-surface rounded shadow flex items-center justify-center text-gray-600 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-40" fill="currentColor"
@@ -47,13 +47,14 @@
                 <div class="flex-1 min-w-0" [class.hidden]="isCollapsed()">
                     <p class="text-sm font-bold text-gray-300 group-hover:text-white truncate transition-colors">{{
                         pl.name }}</p>
-                    <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest">{{ pl.trackIds?.length || 0 }} tracks
+                    <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest">{{ pl.trackCount }} tracks
                     </p>
                 </div>
                 <button (click)="togglePlaylistMenu(pl.id, $event)"
                     class="pl-menu-trigger opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-white transition"
                     [class.opacity-100]="openPlaylistMenuId() === pl.id" [class.hidden]="isCollapsed()"><svg
-                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" viewBox="0 0 20 20"
+                        fill="currentColor">
                         <path
                             d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg></button>
@@ -61,12 +62,12 @@
                 <!-- Playlist Context Menu -->
                 @if (openPlaylistMenuId() === pl.id) {
                 <div
-                    class="pl-menu-content absolute right-0 top-full mt-1 w-48 bg-background-highlight border border-white/5 rounded-lg shadow-2xl z-50 py-1 animate-fade-in origin-top-right">
+                    class="pl-menu-content absolute right-0 top-full mt-1 w-48 bg-background-highlight border border-white/5 rounded-lg shadow-2xl z-[100] py-1 origin-top-right">
                     <button (click)="onEditPlaylist(pl)"
                         class="w-full text-left px-4 py-2 text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-colors">Edit
                         Details</button>
-                    <button
-                        class="w-full text-left px-4 py-2 text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-colors text-red-400 hover:text-red-300">Delete
+                    <button (click)="onDeletePlaylist(pl.id)"
+                        class="w-full text-left px-4 py-2 text-xs font-bold text-red-400 hover:bg-white/10 hover:text-red-300 transition-colors">Delete
                         Playlist</button>
                 </div>
                 }
