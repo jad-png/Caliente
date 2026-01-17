@@ -47,7 +47,7 @@
                 <div class="flex-1 min-w-0" [class.hidden]="isCollapsed()">
                     <p class="text-sm font-bold text-gray-300 group-hover:text-white truncate transition-colors">{{
                         pl.name }}</p>
-                    <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest">{{ pl.trackCount }} tracks
+                    <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest">{{ pl.trackIds?.length || 0 }} tracks
                     </p>
                 </div>
                 <button (click)="togglePlaylistMenu(pl.id, $event)"

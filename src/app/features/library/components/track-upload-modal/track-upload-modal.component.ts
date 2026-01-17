@@ -22,7 +22,6 @@ export class TrackUploadModalComponent {
   }
 
   onContainerClick(event: MouseEvent) {
-    // If we click exactly the backdrop (the outer div)
     if ((event.target as HTMLElement).classList.contains('fixed')) {
       this.onClose();
     }

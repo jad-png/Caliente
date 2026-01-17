@@ -1,6 +1,7 @@
-import { Component, EventEmitter, HostListener, Output, signal } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, Injectable, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { PlaylistService } from '../../../core/services/playlist.service';
 
 @Component({
     selector: 'app-sidebar',
@@ -16,6 +17,10 @@ export class SidebarComponent {
     activeMenu = signal('Library');
     openPlaylistMenuId = signal<string | null>(null);
 
+    private playlistService = inject(PlaylistService);
+
+    playlists = this.playlistService.playlists;
+
     @HostListener('document:click', ['$event'])
     onDocumentClick(event: MouseEvent) {
         const target = event.target as HTMLElement;
@@ -29,13 +34,6 @@ export class SidebarComponent {
         this.openPlaylistMenuId.set(null);
     }
 
-    // Dummy playlists for UI
-    playlists = signal([
-        { id: '1', name: 'My Favorites', trackCount: 42 },
-        { id: '2', name: 'Late Night Vibes', trackCount: 15 },
-        { id: '3', name: 'Gym Mix', trackCount: 28 },
-        { id: '4', name: 'Coding Flow', trackCount: 104 }
-    ]);
 
     toggleSidebar() {
         this.isCollapsed.update(v => !v);

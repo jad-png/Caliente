@@ -32,12 +32,11 @@ export class TrackService {
         try {
             const newTrack: Track = {
                 ...trackData,
-                id: crypto.randomUUID(), // Native browser UUID
+                id: crypto.randomUUID(),
                 addedAt: new Date()
             };
 
             await this.storage.tracks.add(newTrack);
-            // Refresh list or optimistic update
             this.tracks.update(list => [...list, newTrack]);
         } catch (err) {
             console.error(err);

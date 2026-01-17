@@ -1,6 +1,7 @@
-import { Injectable, signal, Signal } from "@angular/core";
+import { inject, Injectable, signal, Signal } from "@angular/core";
 import { StorageService } from "./storage.service";
 import { Playlist } from "../models/playlist.model";
+import { ToastService } from "./toast.service";
 
 @Injectable({
     providedIn: 'root'
@@ -9,6 +10,9 @@ export class PlaylistService {
     readonly playlists = signal<Playlist[]>([]);
     readonly loading = signal<boolean>(false);
     readonly error = signal<String | null>(null);
+
+    private toastService = inject(ToastService);
+    
 
     constructor(private storage: StorageService) {
         this.loadPlaylists();
@@ -77,6 +81,11 @@ export class PlaylistService {
         const playlist = this.playlists().find(p => p.id === playlistId);
         if (!playlist) {
             this.error.set('Playlist not found');
+            return;
+        }
+
+        if (playlist.trackIds?.includes(trackId)) {
+            this.toastService.show('Track already in playlist');
             return;
         }
 
