@@ -34,39 +34,48 @@
         </div>
         <div class="px-2 space-y-1">
             @for (pl of playlistWithCount(); track pl.id) {
-            <div class="group relative px-4 py-2 rounded-lg hover:bg-surface-hover transition cursor-pointer flex items-center gap-3"
-                [class.z-[60]]="openPlaylistMenuId() === pl.id">
-                <div
-                    class="w-10 h-10 bg-surface rounded shadow flex items-center justify-center text-gray-600 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-40" fill="currentColor"
-                        viewBox="0 0 24 24">
-                        <path
-                            d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                    </svg>
-                </div>
-                <div class="flex-1 min-w-0" [class.hidden]="isCollapsed()">
-                    <p class="text-sm font-bold text-gray-300 group-hover:text-white truncate transition-colors">{{
-                        pl.name }}</p>
-                    <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest">{{ pl.trackCount }} tracks
-                    </p>
-                </div>
-                <button (click)="togglePlaylistMenu(pl.id, $event)"
-                    class="pl-menu-trigger opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-white transition"
-                    [class.opacity-100]="openPlaylistMenuId() === pl.id" [class.hidden]="isCollapsed()"><svg
-                        xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" viewBox="0 0 20 20"
+            <div class="group relative px-2 py-1.5 rounded-lg hover:bg-surface-hover transition flex items-center gap-2"
+                [class.z-[60]]="openPlaylistMenuId() === pl.id" [class.bg-accent-10]="activeMenu() === pl.name"
+                [class.text-accent]="activeMenu() === pl.name">
+                <a [routerLink]="['/playlist', pl.id]" (click)="setActive(pl.name)"
+                    class="flex-1 flex items-center gap-3 min-w-0 py-0.5">
+                    <div
+                        class="w-10 h-10 bg-surface rounded shadow flex items-center justify-center text-gray-600 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-40" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0" [class.hidden]="isCollapsed()">
+                        <p class="text-sm font-bold text-gray-300 group-hover:text-white truncate transition-colors">{{
+                            pl.name }}</p>
+                        <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest">{{ pl.trackCount }}
+                            tracks
+                        </p>
+                    </div>
+                </a>
+
+                <button type="button" (click)="togglePlaylistMenu(pl.id, $event); $event.preventDefault()"
+                    class="pl-menu-trigger opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-white transition rounded-full"
+                    [class.opacity-100]="openPlaylistMenuId() === pl.id" [class.hidden]="isCollapsed()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" viewBox="0 0 20 20"
                         fill="currentColor">
                         <path
                             d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg></button>
+                    </svg>
+                </button>
 
                 <!-- Playlist Context Menu -->
                 @if (openPlaylistMenuId() === pl.id) {
                 <div
-                    class="pl-menu-content absolute right-0 top-full mt-1 w-48 bg-background-highlight border border-white/5 rounded-lg shadow-2xl z-[100] py-1 origin-top-right">
-                    <button (click)="onEditPlaylist(pl)"
-                        class="w-full text-left px-4 py-2 text-xs font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-colors">Edit
+                    class="pl-menu-content absolute right-0 top-full mt-1 w-48 bg-background-highlight border border-white/5 rounded-lg shadow-2xl z-[100] py-1 origin-top-right text-gray-300">
+                    <button type="button"
+                        (click)="onEditPlaylist(pl); $event.stopPropagation(); $event.preventDefault()"
+                        class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-white/10 hover:text-white transition-colors">Edit
                         Details</button>
-                    <button (click)="onDeletePlaylist(pl.id)"
+                    <button type="button"
+                        (click)="onDeletePlaylist(pl.id); $event.stopPropagation(); $event.preventDefault()"
                         class="w-full text-left px-4 py-2 text-xs font-bold text-red-400 hover:bg-white/10 hover:text-red-300 transition-colors">Delete
                         Playlist</button>
                 </div>
@@ -76,7 +85,7 @@
         </div>
     </div>
     <div class="p-6" [class.hidden]="isCollapsed()">
-        <button (click)="onCreatePlaylistClick()"
+        <button type="button" (click)="onCreatePlaylistClick()"
             class="w-full bg-accent hover:bg-accent-hover text-black py-3 rounded-full font-black uppercase tracking-widest shadow-lg shadow-accent/20 transition active:scale-95 text-xs">New
             Playlist</button>
     </div>

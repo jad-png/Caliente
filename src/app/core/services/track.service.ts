@@ -18,6 +18,7 @@ export class TrackService {
         this.loading.set(true);
         try {
             const tracks = await this.storage.tracks.getAllFromIndex('by-date');
+            console.log(tracks);
             this.tracks.set(tracks);
         } catch (err) {
             console.error(err);
@@ -37,6 +38,7 @@ export class TrackService {
             };
 
             await this.storage.tracks.add(newTrack);
+
             this.tracks.update(list => [...list, newTrack]);
         } catch (err) {
             console.error(err);

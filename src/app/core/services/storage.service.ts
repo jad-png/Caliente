@@ -84,14 +84,14 @@ export class StorageService {
     public readonly playlists: BaseStorage<Playlist>;
 
     constructor() {
-        this.musicDbPromise = openDB<MusicStreamDB>('MusicStreamDB', 1, {
+        this.musicDbPromise = openDB<MusicStreamDB>('MusicStreamDB', 2, {
             upgrade(db) {
                 const store = db.createObjectStore('tracks', { keyPath: 'id' });
                 store.createIndex('by-date', 'addedAt');
             },
         });
 
-        this.playlistDbPromise = openDB<PlaylistDB>('PlaylistDB', 1, {
+        this.playlistDbPromise = openDB<PlaylistDB>('PlaylistDB', 2, {
             upgrade(db) {
                 const store = db.createObjectStore('playlists', { keyPath: 'id' });
                 store.createIndex('by-date', 'createdAt');

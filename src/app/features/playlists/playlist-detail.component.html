@@ -1,0 +1,148 @@
+<div class="h-full flex flex-col pt-8 px-8 gap-8 overflow-y-auto">
+    <!-- Playlist Hero Section -->
+    <header class="flex flex-col md:flex-row items-end gap-6 animate-fade-in" *ngIf="playlist()">
+        <div
+            class="w-52 h-52 bg-gradient-to-br from-purple-900 to-indigo-950 rounded-lg shadow-2xl flex items-center justify-center text-white shrink-0 group relative overflow-hidden">
+            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+            <img *ngIf="playlist()?.coverImage" [src]="playlist()?.coverImage"
+                class="absolute inset-0 w-full h-full object-cover">
+            <svg *ngIf="!playlist()?.coverImage" xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 opacity-30"
+                fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+            </svg>
+        </div>
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-black uppercase tracking-widest text-gray-400">Playlist</span>
+            <h1 class="text-7xl font-black text-white tracking-tighter">{{ playlist()?.name }}</h1>
+            <p class="text-gray-400 font-medium text-sm mt-2 max-w-2xl">{{ playlist()?.description }}</p>
+            <div class="flex items-center gap-2 mt-4">
+                <div
+                    class="w-6 h-6 rounded-full bg-accent flex items-center justify-center text-[10px] text-white font-bold">
+                    {{ playlist()?.artist?.charAt(0) }}</div>
+                <span class="text-sm font-bold text-white hover:underline cursor-pointer">{{ playlist()?.artist
+                    }}</span>
+                <span class="text-gray-500 text-sm">• {{ playlistTracks().length }} songs</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Controls -->
+    <div
+        class="flex items-center justify-between sticky top-0 bg-background-base/60 backdrop-blur-lg py-4 z-10 border-b border-white/5">
+        <div class="flex items-center gap-6">
+            <button (click)="playPlaylist()" [disabled]="playlistTracks().length === 0"
+                class="w-14 h-14 bg-accent hover:bg-accent-hover rounded-full flex items-center justify-center text-black shadow-lg shadow-accent/20 transition-all hover:scale-110 active:scale-95 disabled:opacity-30 disabled:hover:scale-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+            </button>
+            <a routerLink="/"
+                class="p-2 text-gray-400 hover:text-white transition group flex items-center gap-2 font-bold">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add more songs</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Track Table -->
+    <div class="flex flex-col mb-12">
+        <div
+            class="grid grid-cols-[16px_4fr_3fr_minmax(120px,1fr)_48px] gap-4 px-4 py-3 border-b border-white/5 text-xs font-black text-gray-500 uppercase tracking-widest sticky top-[92px] bg-background-base z-10">
+            <div class="flex justify-center">#</div>
+            <div>Title</div>
+            <div>Artist</div>
+            <div class="flex justify-end pr-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div></div>
+        </div>
+
+        <div class="flex flex-col mt-2">
+            @for (track of playlistTracks(); track track.id; let i = $index) {
+            <div class="group grid grid-cols-[16px_4fr_3fr_minmax(120px,1fr)_48px] gap-4 px-4 py-2 items-center rounded-lg hover:bg-white/5 transition-all text-sm relative"
+                (dblclick)="playTrack(track)">
+                <div class="flex justify-center text-gray-500 font-mono">
+                    @if (playerService.currentTrack()?.id === track.id && playerService.state() === 'playing') {
+                    <div class="flex items-end gap-0.5 h-3 animate-pulse">
+                        <div class="w-1 h-3 bg-accent"></div>
+                        <div class="w-1 h-2 bg-accent"></div>
+                        <div class="w-1 h-3 bg-accent"></div>
+                    </div>
+                    } @else {
+                    <span class="group-hover:hidden">{{ i + 1 }}</span>
+                    <button (click)="playTrack(track)" class="hidden group-hover:block text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                    </button>
+                    }
+                </div>
+
+                <div class="flex items-center gap-3 min-w-0">
+                    <div
+                        class="w-10 h-10 bg-background-highlight rounded shadow flex items-center justify-center shrink-0 overflow-hidden relative">
+                        @if (track.coverImage) {
+                        <img [src]="track.coverImage" class="absolute inset-0 w-full h-full object-cover">
+                        } @else {
+                        <div class="absolute inset-0 bg-accent/10"></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-20" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                        </svg>
+                        }
+                    </div>
+                    <div class="flex flex-col truncate">
+                        <span class="font-bold text-white truncate"
+                            [class.text-accent]="playerService.currentTrack()?.id === track.id">
+                            {{ track.title }}
+                        </span>
+                        <span class="text-xs text-gray-500 font-medium group-hover:text-gray-300 transition-colors">{{
+                            track.genre }}</span>
+                    </div>
+                </div>
+
+                <div class="text-gray-400 group-hover:text-white transition-colors truncate">
+                    {{ track.artist }}
+                </div>
+
+                <div class="flex justify-end pr-8 text-gray-500 font-mono text-xs">
+                    {{ track.duration | duration }}
+                </div>
+
+                <div class="flex justify-center relative">
+                    <button type="button"
+                        class="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            }
+
+            @if (playlistTracks().length === 0) {
+            <div class="flex flex-col items-center justify-center py-32 text-gray-500 gap-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 opacity-20" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                <p class="font-bold tracking-tight">This playlist is empty</p>
+                <a routerLink="/" class="text-accent hover:underline font-bold">Find songs for your playlist</a>
+            </div>
+            }
+        </div>
+    </div>
+
+    <!-- Space for player footer -->
+    <div class="h-32 shrink-0"></div>
+</div>
